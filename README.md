@@ -1,6 +1,7 @@
 # a C Thread pool, manage thread through name str.
 
-Work as Middleware lib, export simple interfate to application layer
+Work as Middleware lib, export simple interfate to application layer.
+
 Please refer to the specific case examples in the test
 
 
