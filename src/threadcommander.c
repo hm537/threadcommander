@@ -4,6 +4,88 @@
 #include "threadcommander.h"
 
 /**
+ *  @struct THREAD_INFO_T
+ *  @brief The thread info struct
+ *
+ *  @var threadName			thread name
+ *  @var threadID			thread id
+ *  @var start_rtn			thread routine
+ *  @var bEnableCtrl		
+ *  @var ctrlSem			control thread  pause / restart
+ *  @var ctrlRetSem			thread  deal signal thern post this
+ *  @var isRun				thread run status
+ *  @var arg					thread routine	 param
+ */
+typedef struct{
+	pthread_t threadID;
+	pthread_mutex_t * pMutex;
+	void (*run)(void * arg);
+	pthread_key_t key;
+	int currentCnt;//run() excute count
+	int times;//run() excute times, 0 - infinite loop
+	int delayMs;//run() delay time
+}THREAD_INFO_T;
+
+
+static 
+
+static void * ThreadStartRoutine(void * arg)
+{
+	THREAD_INFO_T * pThreadInfo = (THREAD_INFO_T *);
+	int excuteCnt = pThreadInfo->times;
+
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+	pthread_cleanup_push(pthread_mutex_unlock, (void *) &mut);s
+	
+	while(excuteCnt--)
+	{
+		pthread_mutex_lock(&mut);
+		/* do some work */
+		pthread_mutex_unlock(&mut);
+		
+	}
+	
+	pthread_cleanup_pop(0);
+}
+
+
+
+
+THREAD_HANDLE threadcommander_create(THREAD_PARAM_T * param)
+{
+	if(!param)
+		return 0;
+
+	THREAD_INFO_T * handle = (THREAD_INFO_T *)calloc(1, sizeof(calloc));
+	if(!handle)
+		return 0;
+
+	//
+	if(param->pthreadPriParamPoint)
+	{
+		pthread_key_create(&handle->key, param->priParamDestructor);
+		pthread_setspecific(&handle->key, *param->pthreadPriParamPoint);
+		*param->pthreadPriParamPoint = pthread_getspecific(&handle->key);
+	}
+
+	handle->pMutex = param->pMutex;
+	handle->run = param->run;
+	handle->times = param->times;
+	handle->delayMs = param->delayMs;
+
+	
+	if(-1 == pthread_create(&handle->threadID, NULL, ThreadStartRoutine, (void *)&handle))
+	{
+		free(handle);
+		return 0;
+	}
+
+	return (THREAD_HANDLE)handle;
+}
+
+
+
+/**
  *  @struct THREAD_POOL_T
  *  @brief The thread pool struct
  *

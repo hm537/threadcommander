@@ -12,37 +12,22 @@ typedef enum {
     threadcommander_ctl_unable	= -4
 } threadpool_error_t;
 
-/**
- *  @struct THREAD_INFO_T
- *  @brief The thread info struct
- *
- *  @var threadName			thread name
- *  @var threadID			thread id
- *  @var start_rtn			thread routine
- *  @var bEnableCtrl		
- *  @var ctrlSem			control thread  pause / restart
- *  @var ctrlRetSem			thread  deal signal thern post this
- *  @var isRun				thread run status
- *  @var arg					thread routine	 param
- */
-
 
 typedef struct{
-	char threadName[64];
-	pthread_t threadID;
-	void (*start_rtn)(void*);
-	int bEnableCtrl;
-	sem_t ctrlSem;
-	sem_t ctrlRetSem;
-	int isRun;
-	void *arg;
-}THREAD_INFO_T;
+	int times;//run() excute times, 0 - infinite loop
+	int delayMs;//run() delay time
+	pthread_mutex_t * pMutex;
+	void (*run)(void * priParam);
+	void ** pthreadPriParamPoint;//point to thread private param point 
+	void (*priParamDestructor)(void * priParam);
+}THREAD_PARAM_T;
+
+typedef void * THREAD_HANDLE;
 
 
-int threadcommander_init(int threadMaxNum);
-int threadcommander_create(char * pThreadName, void (*start_rtn)(void *), void *arg, int isRun, int bEnableCtrl);
-int threadcommander_ctrl(char * pThreadName, int isRun);
-int threadcommander_kill(char * pThreadName);
-void threadcommander_waitctrl(THREAD_INFO_T * arg);
+THREAD_HANDLE threadcommander_create(THREAD_PARAM_T * param);
+void threadcommander_start(THREAD_HANDLE handle);
+int threadcommander_stop(THREAD_HANDLE handle);
+int threadcommander_destroy(THREAD_HANDLE handle);
 
 #endif
