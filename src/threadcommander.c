@@ -96,6 +96,7 @@ THREAD_HANDLE mthread_create(THREAD_PARAM_T * param)
 	
 	if(-1 == pthread_create(&handle->threadID, NULL, ThreadStartRoutine, (void *)handle))
 	{
+		memset(handle, 0, sizeof(THREAD_INFO_T));
 		free(handle);
 		return 0;
 	}
@@ -106,9 +107,9 @@ THREAD_HANDLE mthread_create(THREAD_PARAM_T * param)
 
 int mthread_kill(THREAD_HANDLE handle)
 {
-	THREAD_INFO_T * pThreadInfo = 0;
+	THREAD_INFO_T * pThreadInfo = (THREAD_INFO_T *)handle;
 	
-	if(!handle)
+	if(!pThreadInfo || !pThreadInfo->threadID)
 		return -1;
 	
 	pThreadInfo = (THREAD_INFO_T *)handle;
@@ -120,6 +121,10 @@ int mthread_kill(THREAD_HANDLE handle)
 		pthread_cancel(pThreadInfo->threadID);
 		usleep(5*1000);
 	}
+
+	memset(pThreadInfo, 0, sizeof(THREAD_INFO_T));
+	free(pThreadInfo);
+	
 	return 0;
 }
 
