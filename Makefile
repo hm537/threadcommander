@@ -1,10 +1,10 @@
 CFLAGS = -D_REENTRANT -Wall -pedantic -Isrc
 LDLIBS = -lpthread
 
-ifdef DEBUG
+#ifdef DEBUG
 CFLAGS += -g
 LDFLAGS += -g
-endif
+#endif
 
 TARGETS = test/test libthreadcommander.so libthreadcommander.a
 
@@ -15,6 +15,9 @@ test/test: test/test.o src/threadcommander.o
 
 shared: libthreadpool.so
 static: libthreadpool.a
+
+test/test.o: test/test.c src/threadcommander.h
+	$(CC) -c -fPIC ${CFLAGS} -o $@ $<
 
 libthreadcommander.so: src/threadcommander.c src/threadcommander.h
 	$(CC) -shared -fPIC ${CFLAGS} -o $@ $< ${LDLIBS}

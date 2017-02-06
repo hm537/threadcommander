@@ -1,0 +1,5 @@
+---- times Matches (4 in 3 files) ----
+Test.c (d:\github\threadcommander\test):	fprintf(stderr, "TestThreadProc1CleanUp, proc run %d times!\r\n",*pArg);
+Test.c (d:\github\threadcommander\test):	param.times = 20;
+Threadcommander.c (d:\github\threadcommander\src):	int times;
+Threadcommander.h (d:\github\threadcommander\src)://run() excute times, 0 - infinite loop

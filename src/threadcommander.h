@@ -1,33 +1,33 @@
 #ifndef _THREAD_COMMANDER_H_
 #define _THREAD_COMMANDER_H_
-
+#include <unistd.h>
 #include <pthread.h>
-#include <semaphore.h>
 
-typedef enum {
-	threadcommander_ok			= 0,
-    threadcommander_err			= -1,
-    threadcommander_param_err	= -2,
-    threadcommander_queue_full	= -3,
-    threadcommander_ctl_unable	= -4
-} threadpool_error_t;
-
-
+/**
+ *  @struct THREAD_PARAM_T
+ *  @brief The thread param struct
+ *
+ *  @var run				user wrok process
+ *  @var threadArg			run() param
+ *  @var cbCleanUpRoutine	if not null, will be called when kill thread
+ *  @var pMutex				run() lock
+ *  @var runTimes			excute times, 0 - infinite loop
+ *  @var delayMs			run() delay time
+ */
 typedef struct{
-	int times;//run() excute times, 0 - infinite loop
-	int delayMs;//run() delay time
+	void (*run)(void *);
+	void * threadArg;
+	void (*cbCleanUpRoutine)(void *);
 	pthread_mutex_t * pMutex;
-	void (*run)(void * priParam);
-	void ** pthreadPriParamPoint;//point to thread private param point 
-	void (*priParamDestructor)(void * priParam);
+	int runTimes;
+	int delayMs;
 }THREAD_PARAM_T;
 
 typedef void * THREAD_HANDLE;
 
 
-THREAD_HANDLE threadcommander_create(THREAD_PARAM_T * param);
-void threadcommander_start(THREAD_HANDLE handle);
-int threadcommander_stop(THREAD_HANDLE handle);
-int threadcommander_destroy(THREAD_HANDLE handle);
+THREAD_HANDLE mthread_create(THREAD_PARAM_T * param);
+int mthread_kill(THREAD_HANDLE handle);
+void * mthread_getpridate(THREAD_HANDLE handle);
 
 #endif
